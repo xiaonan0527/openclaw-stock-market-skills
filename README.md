@@ -1,117 +1,122 @@
-# 股神 - 双报告模式配置完成 ✅
+# OpenClaw Stock Market Skills
 
-## 配置概览
+<div align="center">
 
-### 📊 报告类型
-1. **港股动量报告** - 每天早上 8:30
-2. **美股动量报告** - 每天晚上 20:30
+[![OpenClaw](https://img.shields.io/badge/OpenClaw-Skills-blue?style=flat-square)](https://openclaw.ai)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/xiaonan0527/openclaw-stock-market-skills?style=flat-square)](https://github.com/xiaonan0527/openclaw-stock-market-skills/stargazers)
 
-### 🎯 观察池
-- **美股**: 10只（AAPL, MSFT, NVDA, TSLA, AMD, MRNA, BNTX, PLTR, COIN, NIO）
-- **港股**: 10只（腾讯0700、阿里9988、小米1810、美团3690、比亚迪1211、理想2015、小鹏9868、港交所0388、中国移动0941、平安2318）
+**全球股票市场数据查询 Skills for OpenClaw AI Agent**
 
-### 🔧 技术架构
-- **美股数据源**: Finnhub API（免费版）
-- **港股数据源**: Yahoo Finance API（免费）
-- **报告生成**: Node.js 脚本
-- **发送渠道**: 飞书机器人
+覆盖 A股 🇨🇳 · 港股 🇭🇰 · 美股 🇺🇸
+
+[快速开始](#快速开始) · [文档](skills/README.md) · [贡献指南](#贡献) · [问题反馈](https://github.com/xiaonan0527/openclaw-stock-market-skills/issues)
+
+</div>
 
 ---
 
-## 使用方法
+## ✨ 特性
 
-### 手动生成报告
+- 🌏 **多市场覆盖** - 支持 A股、港股、美股三大主要市场
+- 📊 **实时数据** - 实时行情、历史数据、技术指标
+- 🏢 **基本面分析** - 公司信息、财务报表、分析师评级
+- 🔒 **安全设计** - API keys 从环境变量读取，无硬编码
+- 📦 **开箱即用** - 完整配置指南，快速集成
+
+## 📦 包含的 Skills
+
+| Skill | 市场 | 数据源 | 功能 |
+|-------|------|--------|------|
+| **qveris-official** | 🇨🇳 A股 | 同花顺 iFinD | 实时行情、历史数据、技术指标、公司基本面 |
+| **yahoo-finance** | 🇭🇰 港股 | Yahoo Finance | 实时报价、公司信息、历史数据（免费） |
+| **finnhub-stock** | 🇺🇸 美股 | Finnhub | 实时报价、K线数据、财务报表、分析师评级 |
+
+## 🚀 快速开始
+
+### 1. 安装
 
 ```bash
-# 港股报告
-node scripts/generate-report.mjs --market=hk
+# 克隆仓库
+git clone https://github.com/xiaonan0527/openclaw-stock-market-skills.git
 
-# 美股报告
-node scripts/generate-report.mjs --market=us
-
-# 综合报告（港股+美股）
-node scripts/generate-report.mjs --market=all
+# 复制 skills 到你的 OpenClaw workspace
+cp -r openclaw-stock-market-skills/skills/* /path/to/openclaw/workspace/skills/
 ```
 
-### 定时任务配置
+### 2. 配置
 
-#### 方式一：使用 cron
 ```bash
-crontab -e
+# 复制配置示例
+cp .openclaw/env.example.json /path/to/openclaw/workspace/.openclaw/env.json
+
+# 编辑配置文件，填入你的 API keys
+nano /path/to/openclaw/workspace/.openclaw/env.json
 ```
 
-添加：
-```cron
-30 8 * * * cd /root/.openclaw/workspace-stock && node scripts/generate-report.mjs --market=hk
-30 20 * * * cd /root/.openclaw/workspace-stock && node scripts/generate-report.mjs --market=us
+### 3. 获取 API Keys
+
+- **QVeris** (A股): [qveris.ai](https://qveris.ai/)
+- **Finnhub** (美股): [finnhub.io](https://finnhub.io/)
+- **Yahoo Finance** (港股): 无需 API key
+
+### 4. 使用
+
+```bash
+# 查询 A股（茅台）
+node skills/qveris-official/scripts/qveris_tool.mjs search "China A-share real-time stock price"
+
+# 查询港股（腾讯）
+node skills/yahoo-finance/scripts/query.mjs quote 0700.HK
+
+# 查询美股（苹果）
+node skills/finnhub-stock/scripts/query.mjs quote AAPL
 ```
 
-#### 方式二：使用 OpenClaw
-已在 HEARTBEAT.md 中配置，OpenClaw 会自动执行。
+## 📖 文档
+
+完整的配置指南和使用说明，请查看：
+
+- **[Skills 配置指南](skills/README.md)** - 详细的安装、配置和使用文档
+- **[QVeris Skill](skills/qveris-official/SKILL.md)** - A股数据查询
+- **[Yahoo Finance Skill](skills/yahoo-finance/SKILL.md)** - 港股数据查询
+- **[Finnhub Skill](skills/finnhub-stock/SKILL.md)** - 美股数据查询
+
+## 🔒 安全提示
+
+- ⚠️ `.openclaw/env.json` 包含敏感信息，**不要提交到 Git**
+- ✅ 分享时只分享 `env.example.json`
+- ✅ 所有 API keys 都从环境变量读取
+
+## 🤝 贡献
+
+欢迎贡献代码、报告问题或提出建议！
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交修改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 提交 Pull Request
+
+## 📄 许可证
+
+本项目采用 [MIT License](LICENSE) 开源。
+
+## 🙏 致谢
+
+- [OpenClaw](https://openclaw.ai) - AI Agent 框架
+- [QVeris](https://qveris.ai) - A股数据 API
+- [Yahoo Finance](https://finance.yahoo.com) - 港股数据 API
+- [Finnhub](https://finnhub.io) - 美股数据 API
 
 ---
 
-## 报告内容
+<div align="center">
 
-### 港股报告（早上 8:30）
-```
-📊 《港股动量报告》
-🇭🇰 【港股市场】
-  🎯 市场立场（激进买入/保守买入/持币观望）
-  📈 观察名单（Top 3 高动量标的）
-  ⚠️ 风险提示（仓位建议）
-```
+**⚠️ 免责声明**
 
-### 美股报告（晚上 20:30）
-```
-📊 《美股动量报告》
-🇺🇸 【美股市场】
-  🎯 市场立场（激进买入/保守买入/持币观望）
-  📈 观察名单（Top 3 高动量标的）
-  ⚠️ 风险提示（仓位建议）
-```
+本项目提供的数据仅供参考，不构成投资建议。投资有风险，入市需谨慎。
 
----
+Made with ❤️ for [OpenClaw](https://openclaw.ai)
 
-## 文件结构
-
-```
-workspace-stock/
-├── finnhub-stock/          # 美股数据 skill
-│   └── scripts/query.mjs
-├── yahoo-finance/          # 港股数据 skill
-│   └── scripts/query.mjs
-├── scripts/
-│   └── generate-report.mjs # 报告生成器（支持 --market 参数）
-├── HEARTBEAT.md            # 定时任务配置
-├── CRON.md                 # Cron 配置说明
-└── README.md               # 本文档
-```
-
----
-
-## 下一步
-
-1. ✅ 脚本已配置完成
-2. ⏳ 需要配置定时任务（cron 或 OpenClaw）
-3. ⏳ 测试报告发送到飞书
-
----
-
-## 注意事项
-
-1. **API 限制**: 
-   - Finnhub 免费版：每分钟60次请求
-   - Yahoo Finance：无明确限制，但建议合理使用
-
-2. **数据延迟**:
-   - 美股：实时数据
-   - 港股：约15分钟延迟
-
-3. **交易日**:
-   - 建议只在交易日发送报告
-   - 可以在 cron 中添加日期判断
-
-4. **时区**:
-   - 所有时间均为北京时间（UTC+8）
-   - Cron 配置需要根据服务器时区调整
+</div>
