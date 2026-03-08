@@ -13,26 +13,54 @@ const BASE_URL = 'https://query1.finance.yahoo.com';
 const BASE_URL2 = 'https://query2.finance.yahoo.com';
 
 /**
- * 发送 HTTPS GET 请求
+ * 发送 HTTPS GET 请求（带重试机制）
  */
-function httpsGet(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
-    }, (res) => {
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => {
-        try {
-          resolve(JSON.parse(data));
-        } catch (e) {
-          reject(new Error(`Failed to parse JSON: ${data.substring(0, 200)}`));
-        }
+async function httpsGet(url, retries = 2, delay = 1000) {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await new Promise((resolve, reject) => {
+        https.get(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        }, (res) => {
+          let data = '';
+          res.on('data', (chunk) => data += chunk);
+          res.on('end', () => {
+            // 检查 HTTP 状态码
+            if (res.statusCode !== 200) {
+              const preview = data.substring(0, 200);
+              if (res.statusCode === 429) {
+                reject(new Error(`Yahoo Finance API 请求频率过高 (HTTP 429)。请稍后再试，或使用其他数据源。`));
+              } else if (res.statusCode === 404) {
+                reject(new Error(`股票代码不存在或 API 路径错误 (HTTP 404)。请检查股票代码格式。`));
+              } else {
+                reject(new Error(`HTTP ${res.statusCode}: ${preview}`));
+              }
+              return;
+            }
+            
+            // 尝试解析 JSON
+            try {
+              resolve(JSON.parse(data));
+            } catch (e) {
+              reject(new Error(`无法解析 API 响应 (非 JSON 格式): ${data.substring(0, 200)}`));
+            }
+          });
+        }).on('error', reject);
       });
-    }).on('error', reject);
-  });
+    } catch (error) {
+      // 如果是 429 错误且还有重试次数，等待后重试
+      if (error.message.includes('429') && i < retries) {
+        console.error(`⚠️  请求失败 (${i + 1}/${retries + 1})，${delay}ms 后重试...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 2; // 指数退避
+        continue;
+      }
+      // 其他错误或重试次数用完，直接抛出
+      throw error;
+    }
+  }
 }
 
 /**
